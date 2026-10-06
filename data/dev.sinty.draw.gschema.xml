@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="dev.sinty.draw" path="/dev/sinty/draw/">
+    <key name="show-grid" type="b">
+      <default>true</default>
+      <summary>Show the grid on the page</summary>
+    </key>
+    <key name="snap-to-grid" type="b">
+      <default>true</default>
+      <summary>Snap shapes to the grid while moving and resizing</summary>
+    </key>
+    <key name="smart-guides" type="b">
+      <default>true</default>
+      <summary>Snap to the edges and centers of nearby shapes</summary>
+    </key>
+    <key name="show-rulers" type="b">
+      <default>true</default>
+      <summary>Show rulers around the canvas</summary>
+    </key>
+    <key name="show-minimap" type="b">
+      <default>true</default>
+      <summary>Show the mini map</summary>
+    </key>
+    <key name="show-format-panel" type="b">
+      <default>true</default>
+      <summary>Show the format panel</summary>
+    </key>
+    <key name="show-shapes" type="b">
+      <default>true</default>
+      <summary>Show the shapes sidebar</summary>
+    </key>
+    <key name="default-routing" type="s">
+      <choices>
+        <choice value="orthogonal"/>
+        <choice value="straight"/>
+        <choice value="curved"/>
+      </choices>
+      <default>'orthogonal'</default>
+      <summary>Routing style of new connectors</summary>
+    </key>
+    <key name="open-stencils" type="as">
+      <default>['basic', 'arrows', 'flowchart', 'containers']</default>
+      <summary>Stencils open in the shapes sidebar</summary>
+    </key>
+    <key name="collapsed-stencils" type="as">
+      <default>[]</default>
+      <summary>Stencils collapsed in the shapes sidebar</summary>
+    </key>
+    <key name="autoconnect" type="b">
+      <default>true</default>
+      <summary>Show arrows around shapes to add and connect a shape</summary>
+    </key>
+    <key name="check-spelling" type="b">
+      <default>true</default>
+      <summary>Underline misspelled words in shape text</summary>
+    </key>
+    <key name="author-name" type="s">
+      <default>''</default>
+      <summary>Name used for comments and shown to people editing with you</summary>
+    </key>
+  </schema>
+</schemalist>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<Masters xmlns="http://schemas.microsoft.com/office/visio/2012/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xml:space="preserve">
+<Master ID="1" NameU="Start/End" Name="Start/End" IconSize="1"><PageSheet LineStyle="0" FillStyle="0" TextStyle="0"><Cell N="PageWidth" V="1.5"/></PageSheet><Rel r:id="rId1"/></Master>
+<Master ID="2" NameU="Decision" Name="Decision" IconSize="1"><Rel r:id="rId2"/></Master>
+<Master ID="4" NameU="Dynamic connector" Name="Dynamic connector"><Rel r:id="rId3"/></Master>
+<Master ID="5" NameU="Custom Tri" Name="Custom Tri"><Rel r:id="rId4"/></Master>
+</Masters>

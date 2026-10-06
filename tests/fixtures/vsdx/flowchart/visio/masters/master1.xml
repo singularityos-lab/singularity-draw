@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<MasterContents xmlns="http://schemas.microsoft.com/office/visio/2012/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xml:space="preserve"><Shapes>
+<Shape ID="5" Type="Shape" LineStyle="7" FillStyle="7" TextStyle="7"><Cell N="PinX" V="0.75"/><Cell N="PinY" V="0.375"/><Cell N="Width" V="1.5"/><Cell N="Height" V="0.75"/><Cell N="LocPinX" V="0.75" F="Width*0.5"/><Cell N="LocPinY" V="0.375" F="Height*0.5"/><Cell N="Angle" V="0"/><Cell N="FlipX" V="0"/><Cell N="FlipY" V="0"/>
+<Section N="Character"><Row IX="0"><Cell N="Size" V="0.1944444444444444" U="PT"/><Cell N="Style" V="1"/></Row></Section>
+<Section N="Geometry" IX="0"><Cell N="NoFill" V="0"/><Cell N="NoLine" V="0"/><Cell N="NoShow" V="0"/><Row T="MoveTo" IX="1"><Cell N="X" V="0.375"/><Cell N="Y" V="0.75"/></Row><Row T="ArcTo" IX="2"><Cell N="X" V="0.375"/><Cell N="Y" V="0"/><Cell N="A" V="0.375"/></Row><Row T="LineTo" IX="3"><Cell N="X" V="1.125"/><Cell N="Y" V="0"/></Row><Row T="ArcTo" IX="4"><Cell N="X" V="1.125"/><Cell N="Y" V="0.75"/><Cell N="A" V="0.375"/></Row><Row T="LineTo" IX="5"><Cell N="X" V="0.375"/><Cell N="Y" V="0.75"/></Row></Section>
+</Shape></Shapes></MasterContents>

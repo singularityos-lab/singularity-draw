@@ -1,0 +1,65 @@
+{
+    "schema-id": "dev.sinty.draw",
+    "settings": [
+        {
+            "key": "author-name",
+            "label": "Author Name",
+            "subtitle": "Shown on comments and to people editing with you",
+            "type": "string",
+            "widget": "entry"
+        },
+        {
+            "key": "default-routing",
+            "label": "New Connectors",
+            "type": "string",
+            "widget": "combo",
+            "options": [
+                { "id": "orthogonal", "label": "Orthogonal" },
+                { "id": "straight", "label": "Straight" },
+                { "id": "curved", "label": "Curved" }
+            ]
+        },
+        {
+            "key": "autoconnect",
+            "label": "AutoConnect Arrows",
+            "type": "boolean",
+            "widget": "switch"
+        },
+        {
+            "key": "check-spelling",
+            "label": "Check Spelling in Shapes",
+            "type": "boolean",
+            "widget": "switch"
+        },
+        {
+            "key": "show-grid",
+            "label": "Show Grid",
+            "type": "boolean",
+            "widget": "switch"
+        },
+        {
+            "key": "snap-to-grid",
+            "label": "Snap to Grid",
+            "type": "boolean",
+            "widget": "switch"
+        },
+        {
+            "key": "smart-guides",
+            "label": "Smart Guides",
+            "type": "boolean",
+            "widget": "switch"
+        },
+        {
+            "key": "show-rulers",
+            "label": "Show Rulers",
+            "type": "boolean",
+            "widget": "switch"
+        },
+        {
+            "key": "show-minimap",
+            "label": "Show Mini Map",
+            "type": "boolean",
+            "widget": "switch"
+        }
+    ]
+}

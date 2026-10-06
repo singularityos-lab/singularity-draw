@@ -1,0 +1,21 @@
+[Desktop Entry]
+Name=Draw
+Comment=Draw diagrams, flowcharts and vector graphics
+Exec=singularity-draw %U
+Icon=dev.sinty.draw
+Terminal=false
+Type=Application
+Categories=Office;Graphics;VectorGraphics;FlowChart;
+MimeType=application/vnd.oasis.opendocument.graphics;application/vnd.oasis.opendocument.graphics-template;application/vnd.oasis.opendocument.graphics-flat-xml;application/vnd.ms-visio.drawing.main+xml;application/vnd.ms-visio.template.main+xml;application/vnd.ms-visio.drawing.macroEnabled.main+xml;application/vnd.jgraph.mxfile;image/svg+xml;image/openraster;
+Keywords=diagram;flowchart;drawing;visio;vsdx;odg;drawio;uml;org chart;network;bpmn;vector;paint;painting;brush;ora;openraster;
+StartupWMClass=dev.sinty.draw
+X-Singularity-Dock-Recent=true
+Actions=new-drawing;new-painting;
+
+[Desktop Action new-drawing]
+Name=New Drawing
+Exec=singularity-draw --new
+
+[Desktop Action new-painting]
+Name=New Painting
+Exec=singularity-draw --new-painting

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+  <mime-type type="application/vnd.jgraph.mxfile">
+    <comment>draw.io diagram</comment>
+    <glob pattern="*.drawio"/>
+    <glob pattern="*.dio"/>
+  </mime-type>
+  <mime-type type="application/vnd.ms-visio.drawing.main+xml">
+    <comment>Visio drawing</comment>
+    <sub-class-of type="application/zip"/>
+    <glob pattern="*.vsdx"/>
+  </mime-type>
+  <mime-type type="image/openraster">
+    <comment>OpenRaster image</comment>
+    <sub-class-of type="application/zip"/>
+    <glob pattern="*.ora"/>
+  </mime-type>
+</mime-info>

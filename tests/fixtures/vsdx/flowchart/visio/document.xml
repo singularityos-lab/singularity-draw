@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<VisioDocument xmlns="http://schemas.microsoft.com/office/visio/2012/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xml:space="preserve">
+<DocumentSettings TopPage="0" DefaultTextStyle="3" DefaultLineStyle="3" DefaultFillStyle="3" DefaultGuideStyle="4"><GlueSettings>9</GlueSettings></DocumentSettings>
+<Colors><ColorEntry IX="24" RGB="#1F4E79"/></Colors>
+<FaceNames><FaceName NameU="Calibri" Flags="325"/></FaceNames>
+<StyleSheets>
+<StyleSheet ID="0" NameU="No Style" Name="No Style"><Cell N="LineWeight" V="0.01041666666666667" U="PT"/><Cell N="LineColor" V="0"/><Cell N="LinePattern" V="1"/><Cell N="Rounding" V="0" U="IN"/><Cell N="BeginArrow" V="0"/><Cell N="EndArrow" V="0"/><Cell N="EndArrowSize" V="2"/><Cell N="FillForegnd" V="1"/><Cell N="FillBkgnd" V="0"/><Cell N="FillPattern" V="1"/><Cell N="ShdwPattern" V="0"/><Cell N="VerticalAlign" V="1"/><Section N="Character"><Row IX="0"><Cell N="Font" V="Calibri"/><Cell N="Color" V="0"/><Cell N="Style" V="0"/><Cell N="Size" V="0.1666666666666667" U="PT"/></Row></Section><Section N="Paragraph"><Row IX="0"><Cell N="HorzAlign" V="1"/></Row></Section></StyleSheet>
+<StyleSheet ID="3" NameU="Normal" Name="Normal" LineStyle="0" FillStyle="0" TextStyle="0"/>
+<StyleSheet ID="7" NameU="Flow Normal" Name="Flow Normal" LineStyle="3" FillStyle="3" TextStyle="3"><Cell N="FillForegnd" V="#DEEBF7" F="THEMEVAL(&quot;FillColor&quot;)"/><Section N="Character"><Row IX="0"><Cell N="Font" V="Themed" F="THEMEVAL()"/><Cell N="Color" V="#333333" F="THEMEVAL(&quot;TextColor&quot;)"/><Cell N="Size" V="0.1388888888888889" U="PT"/></Row></Section></StyleSheet>
+</StyleSheets>
+<DocumentSheet NameU="TheDoc" Name="TheDoc" LineStyle="0" FillStyle="0" TextStyle="0"><Cell N="OutputFormat" V="0"/></DocumentSheet>
+</VisioDocument>
