@@ -96,6 +96,12 @@ namespace Singularity.Apps.Draw {
                 grid.attach (b, i % 8, i / 8);
             }
             box.append (grid);
+            var recent = new Singularity.Widgets.RecentColorsRow (8);
+            recent.picked.connect ((h) => {
+                pop.popdown ();
+                set_and_emit (h);
+            });
+            box.append (recent);
             var row = new Box (Orientation.HORIZONTAL, 6);
             if (allow_none) {
                 var none = new Button.with_label (_("No Color"));
