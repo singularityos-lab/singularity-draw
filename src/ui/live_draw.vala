@@ -272,6 +272,84 @@ namespace Singularity.Apps.Draw {
             });
         }
 
+        private static string doc_title (DrawWindow win) {
+            string t = win.title ?? "";
+            return t != "" ? t : _("Drawing");
+        }
+
+        public static void start_collab (DrawWindow win, Singularity.Collab.Person person) {
+            var st = state_of (win);
+            if (st.session != null && st.session.mode == LiveMode.COLLAB) {
+                st.session.host_collab.begin (new Json.Object (), person, "Drawing", doc_title (win), (o, res) => {
+                    try {
+                        st.session.host_collab.end (res);
+                        toast (win, _("Invitation sent to %s.").printf (person.name));
+                    } catch (Error e) {
+                        toast (win, e.message);
+                    }
+                });
+                return;
+            }
+            if (st.session != null) stop (win, true);
+            var s = new LiveSession (me (), SCHEME, PATH);
+            wire (win, s);
+            attach_sync (win, null);
+            s.host_collab.begin (state_of (win).sync.snapshot (), person, "Drawing", doc_title (win), (o, res) => {
+                try {
+                    s.host_collab.end (res);
+                    update_chip (win);
+                    toast (win, _("Invitation sent to %s.").printf (person.name));
+                } catch (Error e) {
+                    toast (win, e.message);
+                    stop (win, true);
+                }
+            });
+        }
+
+        public static void join_collab (DrawWindow win, string session, string snapshot, string from) {
+            var s = new LiveSession (me (), SCHEME, PATH);
+            wire (win, s);
+            s.welcome.connect ((state) => {
+                try {
+                    load_shared (win, state);
+                    toast (win, _("You are drawing with %s.").printf (from));
+                } catch (Error e) {
+                    toast (win, e.message);
+                    stop (win, true);
+                }
+            });
+            s.join_collab (session, snapshot);
+        }
+
+        private static void people_group (DrawWindow win, Box box, AppDialog dlg, bool inviting) {
+            if (!Singularity.Collab.Client.installed ()) return;
+            var client = Singularity.Collab.Client.get_default ();
+            var g = new PreferencesGroup (inviting ? _("Invite More People") : _("People Nearby"),
+                _("They are asked to accept, then they draw with you in real time."));
+            box.prepend (g);
+            client.refresh_people.begin ((o, res) => {
+                client.refresh_people.end (res);
+                int shown = 0;
+                foreach (var p in client.people) {
+                    if (!p.can_join) continue;
+                    var person = p;
+                    var row = new ActionRow (p.name, p.provider_name, p.icon_name);
+                    row.activatable = true;
+                    row.activated.connect (() => {
+                        dlg.close ();
+                        start_collab (win, person);
+                    });
+                    g.add_row (row);
+                    shown++;
+                }
+                if (shown == 0) {
+                    var none = new ActionRow (_("Nobody Is Reachable"), _("Pair a computer in Settings, Connected Devices"), "network-offline-symbolic");
+                    none.activatable = false;
+                    g.add_row (none);
+                }
+            });
+        }
+
         public static void start_folder (DrawWindow win, string dir, bool create) throws Error {
             var s = new LiveSession (me (), SCHEME, PATH);
             wire (win, s);
@@ -361,7 +439,9 @@ namespace Singularity.Apps.Draw {
             if (st.session != null) {
                 var s = st.session;
                 var g = new PreferencesGroup (s.mode == LiveMode.FOLDER ? _("Shared through a folder") : _("Live session"));
-                if (s.mode == LiveMode.HOST) {
+                if (s.mode == LiveMode.COLLAB) {
+                    g.add_row (new ActionRow (_("Shared with People Nearby"), s.collab_hosting ? _("You started this session") : _("You joined this session")));
+                } else if (s.mode == LiveMode.HOST) {
                     var link = new ActionRow (_("Link"), s.link);
                     var copy = new Button.from_icon_name ("edit-copy-symbolic");
                     copy.tooltip_text = _("Copy Link");
@@ -396,9 +476,11 @@ namespace Singularity.Apps.Draw {
                     dlg.close ();
                 });
                 bar.prepend (stop_btn);
+                if (s.mode == LiveMode.COLLAB && s.collab_hosting) people_group (win, box, dlg, true);
                 dlg.open_dialog ();
                 return;
             }
+            people_group (win, box, dlg, false);
             var hg = new PreferencesGroup (_("On this network"), _("Others join with the link and its key. Every change merges shape by shape, and everyone sees what the others select."));
             var start = new ActionRow (_("Start a Live Session"), _("Creates a link to share"));
             var sb = row_button (_("Start"));

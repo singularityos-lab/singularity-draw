@@ -136,6 +136,7 @@ ui = files(
   'src/ui/office_ui.vala',
   'src/model/live_sync.vala',
   'src/ui/live_draw.vala',
+  'src/ui/collab_bus.vala',
   'src/ui/print_source.vala',
   'src/ui/rich_text.vala',
 )
@@ -282,3 +283,16 @@ live_test = executable('draw-live-test',
   vala_args: ['--pkg', 'zlib'],
 )
 test('live', live_test, env: test_env, timeout: 120)
+
+install_data('data/capabilities/dev.sinty.Collab.Drawing1.ini',
+  install_dir: get_option('datadir') / 'singularity' / 'capabilities')
+
+draw_service_conf = configuration_data()
+draw_service_conf.set('bindir', get_option('prefix') / get_option('bindir'))
+configure_file(
+  input: 'data/dev.sinty.draw.service.in',
+  output: 'dev.sinty.draw.service',
+  configuration: draw_service_conf,
+  install: true,
+  install_dir: get_option('datadir') / 'dbus-1' / 'services'
+)
