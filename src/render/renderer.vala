@@ -15,6 +15,8 @@ namespace Singularity.Apps.Draw {
 
     public class Renderer {
         public static SpellFunc? speller = null;
+        private static Gee.HashMap<string, Pango.Layout>? layout_cache = null;
+        private const int LAYOUT_CACHE_LIMIT = 8192;
 
         public static void draw_page (Cairo.Context cr, Page page, RenderOptions opts) {
             if (opts.background && !Colors.is_none (page.background)) {
@@ -432,6 +434,22 @@ namespace Singularity.Apps.Draw {
             return fd;
         }
 
+        private static Pango.Layout cached_layout (Cairo.Context cr, Style st, string text, double width, bool wrap) {
+            if (layout_cache == null) layout_cache = new Gee.HashMap<string, Pango.Layout> ();
+            string key = "%s\n%s\n%d\n%d\n%d\n%d\n%s".printf (
+                font_for (st).to_string (), wrap ? "%.3f".printf (width) : "",
+                (int) st.halign, (int) wrap, (int) st.underline, (int) st.strike, text);
+            var layout = layout_cache[key];
+            if (layout == null) {
+                if (layout_cache.size >= LAYOUT_CACHE_LIMIT) layout_cache.clear ();
+                layout = make_layout (cr, st, text, width, wrap);
+                layout_cache[key] = layout;
+            } else {
+                Pango.cairo_update_layout (cr, layout);
+            }
+            return layout;
+        }
+
         public static Pango.Layout make_layout (Cairo.Context cr, Style st, string text, double width, bool wrap) {
             var layout = Pango.cairo_create_layout (cr);
             var fo = new Cairo.FontOptions ();
@@ -504,8 +522,8 @@ namespace Singularity.Apps.Draw {
                 cr.restore ();
                 return;
             }
-            var layout = make_layout (cr, st, text, r.w, st.wrap);
             var runs = text == s.text ? s.rich_runs () : null;
+            var layout = runs == null ? cached_layout (cr, st, text, r.w, st.wrap) : make_layout (cr, st, text, r.w, st.wrap);
             if (runs != null) RichRuns.apply (layout, runs);
             int lw, lh;
             layout.get_pixel_size (out lw, out lh);

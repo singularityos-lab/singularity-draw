@@ -127,6 +127,10 @@ namespace Singularity.Apps.Draw {
         private Gee.HashMap<Item, Rect?> start_bounds = new Gee.HashMap<Item, Rect?> ();
         private string accent = "#3584e4";
         private bool dark = false;
+        private Singularity.Widgets.TileCache page_tiles = new Singularity.Widgets.TileCache ();
+        private bool view_moved = false;
+        private bool content_dirty = true;
+        private string tiles_state = "";
         private Gee.ArrayList<Item>? move_set = null;
 
         public const double HANDLE = 5;
@@ -137,7 +141,6 @@ namespace Singularity.Apps.Draw {
             can_focus = true;
             hexpand = true;
             vexpand = true;
-            set_draw_func (draw);
             accent = Singularity.Style.StyleManager.get_default ().accent_hex ?? accent;
             Singularity.Style.StyleManager.get_default ().notify["accent-hex"].connect (() => {
                 accent = Singularity.Style.StyleManager.get_default ().accent_hex ?? accent;
@@ -209,6 +212,7 @@ namespace Singularity.Apps.Draw {
             });
             add_controller (file_drop);
             doc.changed.connect (() => {
+                content_dirty = true;
                 prune_selection ();
                 queue_draw ();
                 view_changed ();
@@ -221,6 +225,7 @@ namespace Singularity.Apps.Draw {
         }
 
         private void on_restored (string[] ids) {
+            content_dirty = true;
             selection.clear ();
             foreach (string id in ids) {
                 var it = page.find (id);
@@ -309,6 +314,7 @@ namespace Singularity.Apps.Draw {
         }
 
         public void center_on (double px, double py) {
+            view_moved = true;
             origin_x = px - get_width () / 2.0 / zoom;
             origin_y = py - get_height () / 2.0 / zoom;
             queue_draw ();
@@ -316,6 +322,7 @@ namespace Singularity.Apps.Draw {
         }
 
         public void scroll_by (double dx, double dy) {
+            view_moved = true;
             origin_x += dx / zoom;
             origin_y += dy / zoom;
             queue_draw ();
@@ -366,15 +373,40 @@ namespace Singularity.Apps.Draw {
             return c;
         }
 
-        private void draw (DrawingArea area, Cairo.Context cr, int width, int height) {
+        public override void snapshot (Gtk.Snapshot snapshot) {
+            int width = get_width (), height = get_height ();
+            if (width <= 0 || height <= 0) return;
             var fg = get_color ();
             dark = fg.red + fg.green + fg.blue > 1.5;
-            if (dark) cr.set_source_rgb (0.105, 0.105, 0.11);
-            else cr.set_source_rgb (0.91, 0.915, 0.925);
-            cr.paint ();
-            cr.save ();
+            var bounds = Graphene.Rect ().init (0, 0, width, height);
+            Gdk.RGBA back = dark ? Gdk.RGBA () { red = 0.105f, green = 0.105f, blue = 0.11f, alpha = 1 }
+                : Gdk.RGBA () { red = 0.91f, green = 0.915f, blue = 0.925f, alpha = 1 };
+            snapshot.append_color (back, bounds);
+            string state = "%p|%g|%d|%d|%s|%d".printf (page, zoom, (int) dark,
+                (int) (show_grid && !paint_active ()), editing_id ?? "", (int) check_spelling);
+            if (!view_moved || content_dirty || paint_active () || state != tiles_state) page_tiles.invalidate ();
+            view_moved = false;
+            content_dirty = false;
+            tiles_state = state;
+            page_tiles.snapshot (snapshot, this, bounds, origin_x * zoom, origin_y * zoom, (cr, x, y, w, h) => {
+                cr.scale (zoom, zoom);
+                draw_page_layer (cr, Rect (x / zoom, y / zoom, w / zoom, h / zoom));
+            });
+            double scale = Singularity.Widgets.TileCache.device_scale (this);
+            var cr = snapshot.append_cairo (bounds);
+            cr.translate (-Singularity.Widgets.TileCache.snap (origin_x * zoom, scale),
+                -Singularity.Widgets.TileCache.snap (origin_y * zoom, scale));
             cr.scale (zoom, zoom);
-            cr.translate (-origin_x, -origin_y);
+            if (paint_active ()) {
+                paint.draw_overlay (cr, zoom);
+            } else {
+                draw_guides (cr);
+                draw_overlays (cr);
+                draw_comment_badges (cr);
+            }
+        }
+
+        private void draw_page_layer (Cairo.Context cr, Rect v) {
             cr.save ();
             cr.rectangle (4 / zoom, 5 / zoom, page.width, page.height);
             cr.set_source_rgba (0, 0, 0, dark ? 0.5 : 0.12);
@@ -390,7 +422,7 @@ namespace Singularity.Apps.Draw {
             bg.apply (cr);
             cr.rectangle (0, 0, page.width, page.height);
             cr.fill ();
-            if (show_grid && !paint_active ()) draw_grid (cr);
+            if (show_grid && !paint_active ()) draw_grid (cr, v);
             doc.link_backgrounds ();
             var opts = new RenderOptions ();
             opts.background = false;
@@ -400,24 +432,15 @@ namespace Singularity.Apps.Draw {
             if (check_spelling && sc.enabled && sc.available) Renderer.speller = (w) => sc.check (w);
             Renderer.draw_page (cr, page, opts);
             Renderer.speller = null;
-            if (paint_active ()) {
-                paint.draw_overlay (cr, zoom);
-            } else {
-                draw_guides (cr);
-                draw_overlays (cr);
-                draw_comment_badges (cr);
-            }
-            cr.restore ();
         }
 
         public string? editing_id = null;
 
-        private void draw_grid (Cairo.Context cr) {
+        private void draw_grid (Cairo.Context cr, Rect v) {
             double g = doc.grid_size;
             if (g <= 0) return;
             double step = g;
             while (step * zoom < 8) step *= 2;
-            var v = visible_rect ();
             double x0 = Math.floor (v.x / step) * step, y0 = Math.floor (v.y / step) * step;
             cr.save ();
             cr.set_line_width (1 / zoom);
@@ -1441,6 +1464,7 @@ namespace Singularity.Apps.Draw {
             double sx, sy;
             g.get_start_point (out sx, out sy);
             modifiers = g.get_current_event_state ();
+            if (mode != DragMode.PAN) content_dirty = true;
             if (mode == DragMode.PAN) {
                 double dx = ox - prev_ox, dy = oy - prev_oy;
                 prev_ox = ox;
