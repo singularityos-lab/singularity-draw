@@ -1876,7 +1876,9 @@ namespace Singularity.Apps.Draw {
         }
 
         private Page build_page (VsdPage vp, string id) {
-            var page = new Page (vp.name != "" ? vp.name : (vp.background ? _("Background %d").printf (page_no) : _("Page %d").printf (page_no)));
+            string page_name = vp.name;
+            if (page_name == "") page_name = vp.background ? _("Background %d").printf (page_no) : _("Page %d").printf (page_no);
+            var page = new Page (page_name);
             page.id = id;
             page.is_background = vp.background;
             page.width = vp.width * Units.PX_PER_IN;

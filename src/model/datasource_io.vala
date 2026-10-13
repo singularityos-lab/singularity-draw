@@ -30,7 +30,10 @@ namespace Singularity.Apps.Draw {
             switch (d.kind) {
                 case "xlsx": return read_xlsx (d.path, d.sheet);
                 case "ods": return read_ods (d.path, d.sheet);
-                case "sqlite": return read_sqlite (d.path, d.query != "" ? d.query : (d.sheet != "" ? "SELECT * FROM \"%s\"".printf (d.sheet.replace ("\"", "\"\"")) : ""));
+                case "sqlite":
+                    string query = d.query;
+                    if (query == "" && d.sheet != "") query = "SELECT * FROM \"%s\"".printf (d.sheet.replace ("\"", "\"\""));
+                    return read_sqlite (d.path, query);
                 default:
                     string text;
                     FileUtils.get_contents (d.path, out text);

@@ -9,7 +9,8 @@ namespace Singularity.Apps.Draw {
             doc.link_backgrounds ();
             var pages = doc.foreground_pages ();
             if (pages.size == 0) pages = doc.pages;
-            string title = doc.title != "" ? doc.title : (doc.path != null ? Path.get_basename (doc.path) : _("Drawing"));
+            string title = doc.title;
+            if (title == "") title = doc.path != null ? Path.get_basename (doc.path) : _("Drawing");
             var sb = new StringBuilder ();
             sb.append ("<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n");
             sb.append ("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n");

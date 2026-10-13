@@ -528,7 +528,9 @@ namespace Singularity.Apps.Draw {
             var items = new Gee.ArrayList<Item> ();
             foreach (var it in canvas.selection) if (!(it is RasterItem)) items.add (it);
             if (items.size == 0) return;
-            string name = items.size == 1 ? (items[0].name != "" ? items[0].name : (items[0].text != "" ? items[0].display_text ().split ("\n")[0] : describe (items[0]))) : _("Group");
+            string name = _("Group");
+            if (items.size == 1 && items[0].name != "") name = items[0].name;
+            else if (items.size == 1) name = items[0].text != "" ? items[0].display_text ().split ("\n")[0] : describe (items[0]);
             var m = StencilMaster.from_items (name, items);
             m.id = st.new_master_id ();
             st.masters.add (m);
