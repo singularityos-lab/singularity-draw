@@ -131,6 +131,7 @@ namespace Singularity.Apps.Draw {
         private bool view_moved = false;
         private bool content_dirty = true;
         private string tiles_state = "";
+        private Cairo.RecordingSurface? items_recording = null;
         private Gee.ArrayList<Item>? move_set = null;
 
         public const double HANDLE = 5;
@@ -384,7 +385,10 @@ namespace Singularity.Apps.Draw {
             snapshot.append_color (back, bounds);
             string state = "%p|%g|%d|%d|%s|%d".printf (page, zoom, (int) dark,
                 (int) (show_grid && !paint_active ()), editing_id ?? "", (int) check_spelling);
-            if (!view_moved || content_dirty || paint_active () || state != tiles_state) page_tiles.invalidate ();
+            if (!view_moved || content_dirty || paint_active () || state != tiles_state) {
+                page_tiles.invalidate ();
+                items_recording = null;
+            }
             view_moved = false;
             content_dirty = false;
             tiles_state = state;
@@ -423,6 +427,14 @@ namespace Singularity.Apps.Draw {
             cr.rectangle (0, 0, page.width, page.height);
             cr.fill ();
             if (show_grid && !paint_active ()) draw_grid (cr, v);
+            if (items_recording == null) items_recording = record_items ();
+            cr.set_source_surface (items_recording, 0, 0);
+            cr.paint ();
+        }
+
+        private Cairo.RecordingSurface record_items () {
+            var rec = new Cairo.RecordingSurface (Cairo.Content.COLOR_ALPHA, null);
+            var cr = new Cairo.Context (rec);
             doc.link_backgrounds ();
             var opts = new RenderOptions ();
             opts.background = false;
@@ -432,6 +444,7 @@ namespace Singularity.Apps.Draw {
             if (check_spelling && sc.enabled && sc.available) Renderer.speller = (w) => sc.check (w);
             Renderer.draw_page (cr, page, opts);
             Renderer.speller = null;
+            return rec;
         }
 
         public string? editing_id = null;
