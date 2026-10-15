@@ -129,6 +129,7 @@ namespace Singularity.Apps.Draw {
         private bool dark = false;
         private Singularity.Widgets.TileCache page_tiles = new Singularity.Widgets.TileCache ();
         private bool view_moved = false;
+        private bool overlay_only = false;
         private bool content_dirty = true;
         private string tiles_state = "";
         private Cairo.RecordingSurface? items_recording = null;
@@ -385,11 +386,12 @@ namespace Singularity.Apps.Draw {
             snapshot.append_color (back, bounds);
             string state = "%p|%g|%d|%d|%s|%d".printf (page, zoom, (int) dark,
                 (int) (show_grid && !paint_active ()), editing_id ?? "", (int) check_spelling);
-            if (!view_moved || content_dirty || paint_active () || state != tiles_state) {
+            if ((!view_moved && !overlay_only) || content_dirty || paint_active () || state != tiles_state) {
                 page_tiles.invalidate ();
                 items_recording = null;
             }
             view_moved = false;
+            overlay_only = false;
             content_dirty = false;
             tiles_state = state;
             page_tiles.snapshot (snapshot, this, bounds, origin_x * zoom, origin_y * zoom, (cr, x, y, w, h) => {
@@ -1046,7 +1048,12 @@ namespace Singularity.Apps.Draw {
                 else if (item_at (p.x, p.y) != null) set_cursor_from_name ("move");
                 else set_cursor_from_name (null);
             }
-            if (old != hover_shape || old_port != hover_port || pen_path != null) queue_draw ();
+            if (old != hover_shape || old_port != hover_port || pen_path != null) queue_overlay ();
+        }
+
+        private void queue_overlay () {
+            overlay_only = true;
+            queue_draw ();
         }
 
         private void update_arrows (double x, double y) {
@@ -1083,7 +1090,7 @@ namespace Singularity.Apps.Draw {
                     });
                 }
             }
-            if (old_shape != arrow_shape || old_arrow != hover_arrow) queue_draw ();
+            if (old_shape != arrow_shape || old_arrow != hover_arrow) queue_overlay ();
         }
 
         public void simulate_hover (double x, double y) {
@@ -1477,7 +1484,8 @@ namespace Singularity.Apps.Draw {
             double sx, sy;
             g.get_start_point (out sx, out sy);
             modifiers = g.get_current_event_state ();
-            if (mode != DragMode.PAN) content_dirty = true;
+            if (mode == DragMode.RUBBER || mode == DragMode.GUIDE) overlay_only = true;
+            else if (mode != DragMode.PAN) content_dirty = true;
             if (mode == DragMode.PAN) {
                 double dx = ox - prev_ox, dy = oy - prev_oy;
                 prev_ox = ox;
