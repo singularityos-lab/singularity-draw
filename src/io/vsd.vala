@@ -1,3 +1,13 @@
+/*
+ * This file is derived from libvisio (https://git.libreoffice.org/libvisio),
+ * in particular its VSD stream decompression, chunk header and pointer
+ * handling.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 namespace Singularity.Apps.Draw {
 
     public class Vsd {

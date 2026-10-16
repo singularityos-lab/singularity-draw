@@ -21,6 +21,11 @@ meson compile -C build
 meson install -C build
 ```
 
+## Third-party code
+
+- `src/io/vsd.vala`: the Visio VSD reader is derived from [libvisio](https://git.libreoffice.org/libvisio) and stays under the Mozilla Public License 2.0, as stated in the file.
+- `tests/fixtures/vsd/*.vsd` and `tests/fixtures/vsdx/poi/*.vsdx`: test documents from the [Apache POI](https://github.com/apache/poi) test data, under the Apache License 2.0, see [tests/fixtures/LICENSE.Apache-2.0](tests/fixtures/LICENSE.Apache-2.0).
+
 ## License
 
 GPL-3.0-only - see [LICENSE](LICENSE).
