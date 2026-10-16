@@ -721,7 +721,10 @@ namespace Singularity.Apps.Draw {
             var g = new PreferencesGroup (_("Callout"));
             var target = doc.page.find (s.callout_target);
             string what = _("Missing shape");
-            if (target != null) what = target.display_text ().strip () != "" ? target.display_text ().split ("\n")[0] : describe (target);
+            if (target != null && target.display_text ().strip () != "") {
+                string[] lines = target.display_text ().split ("\n");
+                what = lines[0];
+            } else if (target != null) what = describe (target);
             var row = new ActionRow (_("Attached To"), what);
             var detach = new Button.with_label (_("Detach"));
             detach.valign = Align.CENTER;
