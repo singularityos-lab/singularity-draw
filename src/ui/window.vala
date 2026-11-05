@@ -1172,7 +1172,7 @@ namespace Singularity.Apps.Draw {
             foreach (string f in families) if (f == st.font_family) found = true;
             if (!found && st.font_family != "") fam += st.font_family;
             foreach (string f in families) fam += f;
-            var font = new DropDown.from_strings (fam);
+            var font = new ChoiceButton.from_strings (fam);
             font.tooltip_text = _("Font");
             font.add_css_class ("flat");
             var size = new SpinButton.with_range (4, 400, 1);
