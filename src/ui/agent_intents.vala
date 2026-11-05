@@ -280,6 +280,35 @@ namespace Singularity.Apps.Draw {
                     n.get_object ().set_string_member ("path", saved);
                     return verified (n, FileUtils.test (saved, FileTest.EXISTS));
                 });
+            agent.add_intent ("draw_export", "Export the open drawing to PNG, PDF, SVG or PowerPoint; the extension of path picks the format. PNG and SVG export the current page, PDF every page.",
+                "{\"type\":\"object\",\"properties\":{\"path\":{\"type\":\"string\"},\"scale\":{\"type\":\"number\"},\"transparent\":{\"type\":\"boolean\"},\"fit_content\":{\"type\":\"boolean\"}},\"required\":[\"path\"]}",
+                Singularity.AppIntentRisk.IRREVERSIBLE, (args) => {
+                    var w = window (app);
+                    var doc = w.doc;
+                    string path = text (args, "path");
+                    if (!Path.is_absolute (path)) path = Path.build_filename (Environment.get_user_special_dir (UserDirectory.DOCUMENTS) ?? Environment.get_home_dir (), path);
+                    string low = path.down ();
+                    bool fit = args.has_member ("fit_content") && args.get_boolean_member ("fit_content");
+                    if (low.has_suffix (".pdf")) {
+                        Export.pdf (doc, path, true, fit);
+                    } else if (low.has_suffix (".svg")) {
+                        var area = fit ? SvgWriter.content_area (doc.page, null) : SvgWriter.page_area (doc.page);
+                        Formats.write_atomic (path, SvgWriter.write_page (doc.page, area, true, null).data);
+                    } else if (low.has_suffix (".png")) {
+                        var area = fit ? SvgWriter.content_area (doc.page, null) : SvgWriter.page_area (doc.page);
+                        double scale = args.has_member ("scale") ? args.get_double_member ("scale").clamp (0.1, 8) : 1;
+                        Export.png (doc.page, path, area, scale, args.has_member ("transparent") && args.get_boolean_member ("transparent"), null);
+                    } else if (low.has_suffix (".pptx")) {
+                        Formats.write_atomic (path, Pptx.save (doc));
+                    } else {
+                        throw new IOError.INVALID_ARGUMENT ("use a .png, .pdf, .svg or .pptx path");
+                    }
+                    var n = new Json.Object ();
+                    n.set_string_member ("path", path);
+                    var node = new Json.Node (Json.NodeType.OBJECT);
+                    node.set_object (n);
+                    return verified (node, FileUtils.test (path, FileTest.EXISTS));
+                });
             agent.add_intent ("draw_layout", "Arrange shapes and their connectors without overlaps: down, right, tree, tree-right, circle, grid or force. Without ids it arranges the whole page.",
                 "{\"type\":\"object\",\"properties\":{\"layout\":{\"type\":\"string\"},\"ids\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}}}}",
                 Singularity.AppIntentRisk.UNDOABLE, (args) => {
