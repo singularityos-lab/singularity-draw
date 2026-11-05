@@ -10,6 +10,14 @@ namespace Singularity.Apps.Draw {
 
         private static DrawWindow window (DrawApp app) throws Error {
             var w = app.get_active_window () as DrawWindow;
+            if (w == null || w.doc == null) {
+                foreach (var x in app.get_windows ()) {
+                    if (x is DrawWindow && ((DrawWindow) x).doc != null) {
+                        w = (DrawWindow) x;
+                        break;
+                    }
+                }
+            }
             if (w == null) {
                 foreach (var x in app.get_windows ()) {
                     if (x is DrawWindow) {
@@ -19,8 +27,10 @@ namespace Singularity.Apps.Draw {
                 }
             }
             if (w == null) {
-                w = new DrawWindow (app);
-                w.present ();
+                app.activate ();
+                w = app.get_active_window () as DrawWindow;
+                if (w == null) foreach (var x in app.get_windows ()) if (x is DrawWindow) w = (DrawWindow) x;
+                if (w == null) throw new IOError.FAILED ("the window did not open");
             }
             if (w.doc == null) w.new_document ();
             if (w.doc == null) throw new IOError.FAILED ("Draw has no open drawing");
