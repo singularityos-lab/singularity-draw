@@ -127,6 +127,7 @@ ui = files(
   'src/ui/ribbon.vala',
   'src/ui/window.vala',
   'src/ui/app.vala',
+  'src/ui/agent_intents.vala',
   'src/ui/cloud_actions.vala',
   'src/ui/cloud_sync.vala',
   'src/ui/paint_controller.vala',

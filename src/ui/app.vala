@@ -110,6 +110,7 @@ namespace Singularity.Apps.Draw {
                 choose_file (w);
             });
             add_action (open_action);
+            DrawIntents.install (this);
             var open_online = new SimpleAction ("open-online", null);
             open_online.activate.connect (() => {
                 var w = get_active_window () as DrawWindow;
