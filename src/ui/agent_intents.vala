@@ -126,6 +126,7 @@ namespace Singularity.Apps.Draw {
             w.canvas.selection.add_all (items);
             w.canvas.selection_changed ();
             w.canvas.queue_draw ();
+            DrawLive.agent_touch (w, items);
         }
 
         private static Json.Node verified (Json.Node n, bool ok) {

@@ -16,11 +16,15 @@ namespace Singularity.Apps.Draw {
         public bool loading = false;
         public bool installed = false;
         public GLib.Settings? settings;
+        public Gee.ArrayList<Item> agent_items = new Gee.ArrayList<Item> ();
+        public uint agent_timer = 0;
     }
 
     public class DrawLive {
         public const string SCHEME = "draw-live";
         public const string PATH = "/draw";
+        private const uint AGENT_MS = 4000;
+        private const string AGENT_COLOR = "#9141ac";
 
         public static DrawLiveState state_of (DrawWindow win) {
             var st = win.get_data<DrawLiveState> ("draw-live");
@@ -95,7 +99,75 @@ namespace Singularity.Apps.Draw {
             cr.set_source_rgba (c.red, c.green, c.blue, alpha);
         }
 
+        public static void agent_touch (DrawWindow win, Gee.Collection<Item> items) {
+            var st = state_of (win);
+            st.agent_items.clear ();
+            st.agent_items.add_all (items);
+            if (st.agent_timer != 0) Source.remove (st.agent_timer);
+            st.agent_timer = Timeout.add (AGENT_MS, () => {
+                st.agent_timer = 0;
+                st.agent_items.clear ();
+                if (st.layer != null) st.layer.queue_draw ();
+                return Source.REMOVE;
+            });
+            if (st.layer != null) st.layer.queue_draw ();
+        }
+
+        public static bool agent_visible (DrawWindow win) {
+            return state_of (win).agent_items.size > 0;
+        }
+
+        private static void draw_agent (DrawWindow win, Cairo.Context cr) {
+            var st = state_of (win);
+            if (st.agent_items.size == 0 || win.canvas == null || win.doc == null) return;
+            bool any = false;
+            double x0 = 0, y0 = 0, x1 = 0, y1 = 0;
+            foreach (var it in st.agent_items) {
+                if (win.doc.page.find (it.id) == null) continue;
+                var b = it.bounds ();
+                var a = win.canvas.to_screen (b.x, b.y);
+                var z = win.canvas.to_screen (b.x + b.w, b.y + b.h);
+                double ax = double.min (a.x, z.x), ay = double.min (a.y, z.y), bx = double.max (a.x, z.x), by = double.max (a.y, z.y);
+                if (!any) {
+                    x0 = ax; y0 = ay; x1 = bx; y1 = by;
+                    any = true;
+                } else {
+                    x0 = double.min (x0, ax); y0 = double.min (y0, ay); x1 = double.max (x1, bx); y1 = double.max (y1, by);
+                }
+            }
+            if (!any) return;
+            x0 -= 8; y0 -= 8; x1 += 8; y1 += 8;
+            cr.save ();
+            rgb (cr, AGENT_COLOR, 0.08);
+            cr.rectangle (x0, y0, x1 - x0, y1 - y0);
+            cr.fill ();
+            rgb (cr, AGENT_COLOR, 1);
+            cr.set_line_width (2);
+            cr.set_dash ({ 6, 3 }, 0);
+            cr.rectangle (x0, y0, x1 - x0, y1 - y0);
+            cr.stroke ();
+            cr.set_dash ({}, 0);
+            cr.move_to (x1, y1);
+            cr.line_to (x1, y1 + 16);
+            cr.line_to (x1 + 4.5, y1 + 12);
+            cr.line_to (x1 + 11, y1 + 12);
+            cr.close_path ();
+            cr.fill ();
+            var layout = Pango.cairo_create_layout (cr);
+            layout.set_text (_("Sinty AI"), -1);
+            layout.set_font_description (Pango.FontDescription.from_string ("Sans Bold 8"));
+            int tw, th;
+            layout.get_pixel_size (out tw, out th);
+            cr.rectangle (x1 + 10, y1 + 14, tw + 8, th + 4);
+            cr.fill ();
+            cr.set_source_rgb (1, 1, 1);
+            cr.move_to (x1 + 14, y1 + 16);
+            Pango.cairo_show_layout (cr, layout);
+            cr.restore ();
+        }
+
         private static void draw (DrawWindow win, Cairo.Context cr) {
+            draw_agent (win, cr);
             var st = state_of (win);
             if (st.session == null || win.canvas == null || win.doc == null) return;
             var page = win.doc.page;
