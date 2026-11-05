@@ -1567,6 +1567,28 @@ namespace Singularity.Apps.Draw {
             return b;
         }
 
+        public string save_quietly (string path) throws Error {
+            end_text_edit (true);
+            string target = path;
+            if (target == "") target = doc.path ?? "";
+            if (target != "" && !Formats.kind_for_path (target).can_save ()) throw new IOError.INVALID_ARGUMENT ("Draw cannot save this format");
+            if (target == "") {
+                var dir = Environment.get_user_special_dir (UserDirectory.DOCUMENTS) ?? Environment.get_home_dir ();
+                target = Path.build_filename (dir, base_name () + (app.illustration_mode ? ".svg" : ".odg"));
+            } else if (!Path.is_absolute (target)) {
+                var dir = Environment.get_user_special_dir (UserDirectory.DOCUMENTS) ?? Environment.get_home_dir ();
+                target = Path.build_filename (dir, target);
+            }
+            if (Formats.kind_for_path (target) == FileKind.ORA && paint != null) paint.commit_floating ();
+            Formats.save (doc, target);
+            doc.mark_saved (target);
+            if (Singularity.Runtime.file_history_enabled ()) RecentManager.get_default ().add_item (File.new_for_path (target).get_uri ());
+            update_title ();
+            add_toast (new Toast (_("Saved as %s").printf (Path.get_basename (target))));
+            cloud_sync_now.begin (true);
+            return target;
+        }
+
         public async bool save (bool save_as) {
             if (doc == null) return false;
             end_text_edit (true);

@@ -261,6 +261,15 @@ namespace Singularity.Apps.Draw {
                     n.get_object ().set_int_member ("deleted", doomed.size - left);
                     return verified (n, left == 0);
                 });
+            agent.add_intent ("draw_save", "Save the open drawing without asking. path is optional: absolute, or a file name placed in Documents; its extension picks the format (odg, svg, vsdx, drawio, fodg, ora). Without path it saves to its own file, or to Documents when it has none. Answers with the saved path.",
+                "{\"type\":\"object\",\"properties\":{\"path\":{\"type\":\"string\"}}}",
+                Singularity.AppIntentRisk.IRREVERSIBLE, (args) => {
+                    var w = window (app);
+                    var saved = w.save_quietly (text (args, "path"));
+                    var n = scene (w.doc);
+                    n.get_object ().set_string_member ("path", saved);
+                    return verified (n, FileUtils.test (saved, FileTest.EXISTS));
+                });
             agent.add_intent ("draw_layout", "Arrange shapes and their connectors without overlaps: down, right, tree, tree-right, circle, grid or force. Without ids it arranges the whole page.",
                 "{\"type\":\"object\",\"properties\":{\"layout\":{\"type\":\"string\"},\"ids\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}}}}",
                 Singularity.AppIntentRisk.UNDOABLE, (args) => {
