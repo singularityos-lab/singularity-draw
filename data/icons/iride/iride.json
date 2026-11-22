@@ -1,0 +1,320 @@
+{
+ "format": 1,
+ "canvas": [
+  236,
+  236
+ ],
+ "box": [
+  0,
+  0,
+  236,
+  236
+ ],
+ "stack": [
+  {
+   "shadow": {
+    "dx": 0,
+    "dy": 5,
+    "blur": 6,
+    "color": "#1a3342",
+    "opacity": 0.4,
+    "region": [
+     -20,
+     -20,
+     276,
+     276
+    ]
+   },
+   "stack": [
+    {
+     "layer": "layers/000.svg",
+     "piece": "sheet"
+    },
+    {
+     "layer": "layers/001.svg",
+     "piece": "sheet"
+    }
+   ]
+  },
+  {
+   "clip": "M60 18H150L194 62V196Q194 214 176 214H60Q42 214 42 196V36Q42 18 60 18Z",
+   "stack": [
+    {
+     "layer": "layers/002.svg",
+     "piece": "sheet"
+    }
+   ]
+  },
+  {
+   "rim": "M60 18H150L194 62V196Q194 214 176 214H60Q42 214 42 196V36Q42 18 60 18Z",
+   "light": [
+    42.0,
+    18.0,
+    194.0,
+    214.0
+   ],
+   "piece": "sheet"
+  },
+  {
+   "shadow": {
+    "dx": 0,
+    "dy": 3,
+    "blur": 3,
+    "color": "#3d7a94",
+    "opacity": 0.35,
+    "region": [
+     -20,
+     -20,
+     276,
+     276
+    ]
+   },
+   "stack": [
+    {
+     "layer": "layers/004.svg",
+     "piece": "sheet"
+    }
+   ]
+  },
+  {
+   "layer": "layers/005.svg",
+   "piece": "branches"
+  },
+  {
+   "layer": "layers/006.svg",
+   "piece": "root"
+  },
+  {
+   "layer": "layers/007.svg",
+   "piece": "root"
+  },
+  {
+   "layer": "layers/008.svg",
+   "piece": "circle"
+  },
+  {
+   "layer": "layers/009.svg",
+   "piece": "diamond"
+  },
+  {
+   "layer": "layers/010.svg",
+   "piece": "gloss"
+  }
+ ],
+ "motion": [
+  {
+   "piece": "sheet",
+   "origin": [
+    118.0,
+    118.0
+   ],
+   "tracks": []
+  },
+  {
+   "piece": "branches",
+   "origin": [
+    118.0,
+    118.0
+   ],
+   "tracks": [
+    {
+     "kind": "reveal",
+     "from": [
+      0,
+      0,
+      236,
+      100.0
+     ],
+     "at": 420,
+     "duration": 580,
+     "ease": "linear"
+    },
+    {
+     "kind": "opacity",
+     "from": [
+      0
+     ],
+     "at": 420,
+     "duration": 30,
+     "ease": "linear"
+    }
+   ]
+  },
+  {
+   "piece": "root",
+   "origin": [
+    117.0,
+    85.0
+   ],
+   "tracks": [
+    {
+     "kind": "scale",
+     "from": [
+      0.85,
+      0.85
+     ],
+     "at": 380,
+     "duration": 66,
+     "ease": "out"
+    },
+    {
+     "kind": "scale",
+     "from": [
+      1.15,
+      1.15
+     ],
+     "at": 446,
+     "duration": 134,
+     "ease": "linear"
+    }
+   ]
+  },
+  {
+   "piece": "circle",
+   "origin": [
+    78.0,
+    162.0
+   ],
+   "tracks": [
+    {
+     "kind": "translate",
+     "from": [
+      56.64,
+      -23.6
+     ],
+     "at": 0,
+     "duration": 200,
+     "ease": "linear"
+    },
+    {
+     "kind": "translate",
+     "from": [
+      -9.44,
+      -14.16
+     ],
+     "at": 200,
+     "duration": 180,
+     "ease": "out"
+    },
+    {
+     "kind": "scale",
+     "from": [
+      0.82,
+      0.82
+     ],
+     "at": 620,
+     "duration": 66,
+     "ease": "out"
+    },
+    {
+     "kind": "scale",
+     "from": [
+      1.18,
+      1.18
+     ],
+     "at": 686,
+     "duration": 134,
+     "ease": "linear"
+    }
+   ]
+  },
+  {
+   "piece": "diamond",
+   "origin": [
+    158.0,
+    162.0
+   ],
+   "tracks": [
+    {
+     "kind": "translate",
+     "from": [
+      -54.28,
+      40.12
+     ],
+     "at": 100,
+     "duration": 220,
+     "ease": "linear"
+    },
+    {
+     "kind": "translate",
+     "from": [
+      7.08,
+      -28.32
+     ],
+     "at": 320,
+     "duration": 160,
+     "ease": "out"
+    },
+    {
+     "kind": "scale",
+     "from": [
+      0.82,
+      0.82
+     ],
+     "at": 680,
+     "duration": 66,
+     "ease": "out"
+    },
+    {
+     "kind": "scale",
+     "from": [
+      1.18,
+      1.18
+     ],
+     "at": 746,
+     "duration": 134,
+     "ease": "linear"
+    }
+   ]
+  },
+  {
+   "piece": "gloss",
+   "origin": [
+    78.0,
+    162.0
+   ],
+   "tracks": [
+    {
+     "kind": "translate",
+     "from": [
+      56.64,
+      -23.6
+     ],
+     "at": 0,
+     "duration": 200,
+     "ease": "linear"
+    },
+    {
+     "kind": "translate",
+     "from": [
+      -9.44,
+      -14.16
+     ],
+     "at": 200,
+     "duration": 180,
+     "ease": "out"
+    },
+    {
+     "kind": "scale",
+     "from": [
+      0.82,
+      0.82
+     ],
+     "at": 620,
+     "duration": 66,
+     "ease": "out"
+    },
+    {
+     "kind": "scale",
+     "from": [
+      1.18,
+      1.18
+     ],
+     "at": 686,
+     "duration": 134,
+     "ease": "linear"
+    }
+   ]
+  }
+ ]
+}
