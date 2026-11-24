@@ -329,7 +329,7 @@ namespace Singularity.Apps.Draw {
             return w;
         }
 
-        private Gtk.Window show_window () {
+        public Gtk.Window show_window () {
             var w = get_active_window ();
             if (w == null) w = new DrawWindow (this);
             w.present ();

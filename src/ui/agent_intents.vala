@@ -27,7 +27,7 @@ namespace Singularity.Apps.Draw {
                 }
             }
             if (w == null) {
-                app.activate ();
+                app.show_window ();
                 w = app.get_active_window () as DrawWindow;
                 if (w == null) foreach (var x in app.get_windows ()) if (x is DrawWindow) w = (DrawWindow) x;
                 if (w == null) throw new IOError.FAILED ("the window did not open");
