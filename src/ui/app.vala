@@ -2,7 +2,7 @@ using Gtk;
 
 namespace Singularity.Apps.Draw {
 
-    public class DrawApp : Singularity.Application {
+    public class DrawApp : Singularity.Application, Singularity.Migration.Migratable {
         private static GLib.Settings? _settings = null;
         private static bool settings_checked = false;
         private static string settings_id = "dev.sinty.draw";
@@ -292,6 +292,45 @@ namespace Singularity.Apps.Draw {
             w.present ();
             var dw = w as DrawWindow;
             if (dw != null) TestScript.maybe_run (dw);
+        }
+
+        public void prepare_move () throws Singularity.Migration.MigrationError {
+            foreach (var w in get_windows ()) {
+                var dw = w as DrawWindow;
+                if (dw != null) dw.prepare_move ();
+            }
+        }
+
+        public Variant save_model () {
+            return new VariantDict ().end ();
+        }
+
+        public async void restore_model (Variant model) throws Error {
+        }
+
+        public string window_kind (Gtk.Window w) {
+            return (w is DrawWindow) ? "drawing" : "";
+        }
+
+        public Variant save_window (Gtk.Window w) {
+            return ((DrawWindow) w).save_migration ();
+        }
+
+        public string[] files () {
+            string[] all = {};
+            foreach (var w in get_windows ()) {
+                var dw = w as DrawWindow;
+                if (dw == null) continue;
+                foreach (var f in dw.migration_files ()) all += f;
+            }
+            return all;
+        }
+
+        public async Gtk.Window? rebuild_window (string kind, Variant data) throws Error {
+            if (kind != "drawing") return null;
+            var w = new DrawWindow (this);
+            yield w.restore_migration (data);
+            return w;
         }
 
         public override void open (File[] files, string hint) {

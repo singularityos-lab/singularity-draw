@@ -226,6 +226,57 @@ namespace Singularity.Apps.Draw {
             pending = null;
         }
 
+        public Variant save_history () {
+            return new Variant.tuple ({ save_snapshots (undo_stack), save_snapshots (redo_stack) });
+        }
+
+        private Variant save_snapshots (Gee.List<Snapshot> list) {
+            var b = new VariantBuilder (new VariantType ("a(ssasb)"));
+            foreach (var s in list) {
+                var d = new Document ();
+                d.pages.clear ();
+                d.pages.add_all (s.pages);
+                d.page_index = s.page_index;
+                d.theme_id = s.theme_id;
+                d.theme_variant = s.theme_variant;
+                d.data_sources.add_all (s.data_sources);
+                d.data_graphics.add_all (s.data_graphics);
+                b.add ("(ss@asb)", s.label, NativeFormat.serialize_document (d), new Variant.strv (s.selection), s.mergeable);
+            }
+            return b.end ();
+        }
+
+        public void restore_history (Variant history) throws Error {
+            var undo = load_snapshots (history.get_child_value (0));
+            var redo = load_snapshots (history.get_child_value (1));
+            clear_history ();
+            undo_stack.add_all (undo);
+            redo_stack.add_all (redo);
+        }
+
+        private static Gee.ArrayList<Snapshot> load_snapshots (Variant list) throws Error {
+            var result = new Gee.ArrayList<Snapshot> ();
+            var it = list.iterator ();
+            string label, text;
+            Variant selection;
+            bool mergeable;
+            while (it.next ("(ss@asb)", out label, out text, out selection, out mergeable)) {
+                var d = NativeFormat.parse_document (text);
+                var s = new Snapshot ();
+                s.label = label;
+                s.pages.add_all (d.pages);
+                s.page_index = d.page_index;
+                s.theme_id = d.theme_id;
+                s.theme_variant = d.theme_variant;
+                s.data_sources.add_all (d.data_sources);
+                s.data_graphics.add_all (d.data_graphics);
+                s.selection = selection.get_strv ();
+                s.mergeable = mergeable;
+                result.add (s);
+            }
+            return result;
+        }
+
         public void notify_changed () {
             Router.route_all (page);
             changed ();

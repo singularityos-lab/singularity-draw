@@ -286,6 +286,14 @@ namespace Singularity.Apps.Draw {
             view_changed ();
         }
 
+        public void set_view (double z, double x, double y) {
+            zoom = z.clamp (0.05, 16);
+            origin_x = x;
+            origin_y = y;
+            queue_draw ();
+            view_changed ();
+        }
+
         public void zoom_to (double z) {
             zoom_at (z, get_width () / 2.0, get_height () / 2.0);
         }

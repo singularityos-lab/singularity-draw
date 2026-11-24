@@ -88,6 +88,89 @@ namespace Singularity.Apps.Draw {
             show_welcome ();
         }
 
+        public void prepare_move () throws Singularity.Migration.MigrationError {
+            if (DrawLive.active (this)) throw new Singularity.Migration.MigrationError.UNSUPPORTED (_("Leave the live session before moving %s").printf (app.product_name));
+            end_text_edit (true);
+            if (paint != null && paint.active) paint.commit_floating ();
+        }
+
+        public Variant save_migration () {
+            var d = new VariantDict ();
+            if (doc == null) return d.end ();
+            d.insert_value ("path", new Variant.string (doc.path != null ? Singularity.Migration.portable_path (File.new_for_path (doc.path)) : ""));
+            d.insert_value ("content", new Variant.string (doc.modified || doc.path == null ? NativeFormat.serialize_document (doc) : ""));
+            d.insert_value ("title", new Variant.string (doc.title));
+            d.insert_value ("modified", new Variant.boolean (doc.modified));
+            d.insert_value ("page", new Variant.int32 (doc.page_index));
+            d.insert_value ("history", doc.save_history ());
+            d.insert_value ("view", new Variant ("(ddd)", canvas.zoom, canvas.origin_x, canvas.origin_y));
+            d.insert_value ("selection", new Variant.strv (canvas.selection_ids ()));
+            d.insert_value ("tool", new Variant.int32 ((int) canvas.tool));
+            d.insert_value ("paint", new Variant ("(bis)", paint.active, (int) paint.tool, paint.color));
+            return d.end ();
+        }
+
+        public string[] migration_files () {
+            if (doc == null || doc.path == null) return {};
+            return { Singularity.Migration.portable_path (File.new_for_path (doc.path)) };
+        }
+
+        public async void restore_migration (Variant data) throws Error {
+            var d = new VariantDict (data);
+            string path = (d.lookup_value ("path", VariantType.STRING) ?? new Variant.string ("")).get_string ();
+            string content = (d.lookup_value ("content", VariantType.STRING) ?? new Variant.string ("")).get_string ();
+            string? local = path != "" ? Singularity.Migration.local_file (path).get_path () : null;
+            Document restored;
+            if (content != "") {
+                restored = Formats.load_data (content.data, "document.sdraw");
+                restored.path = local;
+            } else if (local != null) {
+                try {
+                    restored = Formats.load (local);
+                } catch (Error e) {
+                    show_error (_("Could Not Open"), _("\"%s\" could not be opened: %s").printf (Path.get_basename (local), e.message));
+                    return;
+                }
+            } else {
+                return;
+            }
+            restored.title = (d.lookup_value ("title", VariantType.STRING) ?? new Variant.string (restored.title)).get_string ();
+            restored.modified = (d.lookup_value ("modified", VariantType.BOOLEAN) ?? new Variant.boolean (false)).get_boolean ();
+            restored.clear_history ();
+            load_document (restored);
+            int index = (d.lookup_value ("page", VariantType.INT32) ?? new Variant.int32 (0)).get_int32 ();
+            if (index >= 0 && index < doc.pages.size && index != doc.page_index) switch_page (doc.pages[index]);
+            var history = d.lookup_value ("history", new VariantType ("(a(ssasb)a(ssasb))"));
+            if (history != null) doc.restore_history (history);
+            var painting = d.lookup_value ("paint", new VariantType ("(bis)"));
+            if (painting != null) {
+                bool on;
+                int paint_tool;
+                string color;
+                painting.get ("(bis)", out on, out paint_tool, out color);
+                set_paint_mode (on);
+                paint.color = color;
+                paint.use_tool ((PaintTool) paint_tool);
+            }
+            var tool = d.lookup_value ("tool", VariantType.INT32);
+            if (tool != null && !paint.active) canvas.use_tool ((Tool) tool.get_int32 ());
+            var chosen = new Gee.ArrayList<Item> ();
+            foreach (string id in (d.lookup_value ("selection", VariantType.STRING_ARRAY) ?? new Variant.strv ({})).get_strv ()) {
+                var it = doc.page.find (id);
+                if (it != null) chosen.add (it);
+            }
+            canvas.select (chosen);
+            sync_actions ();
+            inspector.refresh ();
+            Idle.add (restore_migration.callback);
+            yield;
+            var view = d.lookup_value ("view", new VariantType ("(ddd)"));
+            if (view == null || canvas == null) return;
+            double zoom, x, y;
+            view.get ("(ddd)", out zoom, out x, out y);
+            canvas.set_view (zoom, x, y);
+        }
+
         public bool is_empty () {
             return doc == null || (!doc.modified && doc.path == null && doc.pages.size == 1 && doc.page.items.size == 0);
         }
