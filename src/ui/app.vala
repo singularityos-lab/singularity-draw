@@ -2,7 +2,7 @@ using Gtk;
 
 namespace Singularity.Apps.Draw {
 
-    public class DrawApp : Singularity.Application, Singularity.Migration.Migratable {
+    public class DrawApp : Singularity.Application, Singularity.Migration.Migratable, Singularity.Startup.Bootable {
         private static GLib.Settings? _settings = null;
         private static bool settings_checked = false;
         private static string settings_id = "dev.sinty.draw";
@@ -286,12 +286,56 @@ namespace Singularity.Apps.Draw {
             set_menubar (menu);
         }
 
-        public override void activate () {
+        public Singularity.Startup.Plan build_plan (Singularity.Startup.Request request) {
+            var plan = new Singularity.Startup.Plan ();
+            plan.version = "draw-1";
+            if (request.kind == Singularity.Startup.RequestKind.SERVICE) {
+                plan.main ("ready", Singularity.Startup.Category.PREPARE, (c) => {})
+                    .reaches (Singularity.Startup.Milestone.SHELL_READY)
+                    .reaches (Singularity.Startup.Milestone.CONTENT_READY)
+                    .reaches (Singularity.Startup.Milestone.INTERACTIVE);
+                return plan;
+            }
+            if (request.kind == Singularity.Startup.RequestKind.OPEN) {
+                var files = request.files ();
+                plan.main ("window", Singularity.Startup.Category.SHELL, (c) => {
+                    c.window = present_window (files);
+                }).reaches (Singularity.Startup.Milestone.SHELL_READY);
+                plan.main ("open-file", Singularity.Startup.Category.CONTENT, (c) => open_files (files))
+                    .depends_on ("window")
+                    .reaches (Singularity.Startup.Milestone.CONTENT_READY)
+                    .reaches (Singularity.Startup.Milestone.INTERACTIVE);
+                return plan;
+            }
+            plan.main ("window", Singularity.Startup.Category.SHELL, (c) => {
+                c.window = show_window ();
+            }).reaches (Singularity.Startup.Milestone.SHELL_READY)
+              .reaches (Singularity.Startup.Milestone.CONTENT_READY)
+              .reaches (Singularity.Startup.Milestone.INTERACTIVE);
+            return plan;
+        }
+
+        public void handle_request (Singularity.Startup.Request request) {
+            if (request.kind == Singularity.Startup.RequestKind.OPEN) open_files (request.files ());
+            else show_window ();
+        }
+
+        private DrawWindow? present_window (File[] files) {
+            bool local = false;
+            foreach (var f in files) local |= f.get_path () != null;
+            if (!local) return null;
+            var w = new DrawWindow (this);
+            w.present ();
+            return w;
+        }
+
+        private Gtk.Window show_window () {
             var w = get_active_window ();
             if (w == null) w = new DrawWindow (this);
             w.present ();
             var dw = w as DrawWindow;
             if (dw != null) TestScript.maybe_run (dw);
+            return w;
         }
 
         public void prepare_move () throws Singularity.Migration.MigrationError {
@@ -333,7 +377,7 @@ namespace Singularity.Apps.Draw {
             return w;
         }
 
-        public override void open (File[] files, string hint) {
+        private void open_files (File[] files) {
             foreach (var f in files) open_file (f, null);
         }
 
